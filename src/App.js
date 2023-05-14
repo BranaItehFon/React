@@ -8,7 +8,9 @@ import {
   Routes,
 } from "react-router-dom";
 import Main from "./components/Main";
+import Order from "./components/Order";
 import { useEffect, useState } from 'react'
+import Search from "./components/Search";
 
 function App() {
   const [data, setData] = useState([
@@ -49,22 +51,46 @@ function App() {
       price: 45,
     },
   ]);
+
+  // const [order, setOrder] = useState([]);
+  const [order, setOrder] = useState([]);
   const [price, setPrice] = useState(0);
+
+  function addOrder(food){
+    if (!order.some(item => item.id === food.id)) {
+      setOrder([...order, food]);
+      setPrice(price + food.price);
+    }
+  }
+
+  function removeOrder(food) {
+    setOrder(order.filter(item => item.id !== food.id));
+    setPrice(price - food.price);
+  }
+
+  const [name, setName] = useState('');
+
   const [showData, setShowData] = useState(data);
+
+  useEffect(() => {
+    let temp = data.filter((food) => food.name.includes(name))
+    setShowData(temp)
+  }, [name]);
+  
   return (
-    <div className="App">
-      <BrowserRouter>
+    <BrowserRouter>
       <div className="App">
         <Navbar price={price}/>
+        <Search name={name} setName={setName}/>
         <div className="body">
           <Routes>
-          <Route path="/" element={<Main data={showData}/>}/>
-            <Route path="/main" element={<Main data={showData}/>}/>
+          <Route path="/" element={<Main data={showData} change={addOrder} isOrder={false}/>}/>
+            <Route path="/main" element={<Main data={showData} change={addOrder} isOrder={false}/>}/>
+            <Route path="/myorder" element={<Order order={order} change={removeOrder} isOrder={true}/>}/>
           </Routes>
         </div>
       </div>
     </BrowserRouter>
-    </div>
   );
 }
 
